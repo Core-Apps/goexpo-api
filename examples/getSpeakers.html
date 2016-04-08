@@ -1,0 +1,57 @@
+<html>
+<head>
+    <style>
+        table.speakersTable th{
+            border: 1px solid black;
+        }
+        table.speakersTable td{
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    // Get all speakers
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/speaker", function(data){
+
+        // Map the table headings to the data returned in our API call
+        var columnHeadings = ['ID','Name','Title','First Name','Middle Name','Last Name','Description'];
+        var columnData = ['id','name','title','first_name','middle_name','last_name','description'];
+
+        // Create our speakers table
+        var table = document.createElement('table');
+        var heading_tr = document.createElement('tr');
+
+        table.className = "speakersTable";
+
+        // Add the column headings
+        for(var i = 0; i < columnHeadings.length; i++){
+            var th = document.createElement('th');
+
+            th.appendChild(document.createTextNode(columnHeadings[i]));
+            heading_tr.appendChild(th);
+        }
+        table.appendChild(heading_tr);
+
+        // Iterate through the speakers
+        for(var i = 0; i < data.results.length; i++){
+
+            // For each column in columnData, add a table row
+            var tr = document.createElement('tr');
+            for(var x = 0; x < columnData.length; x++){
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(data.results[i][columnData[x]]));
+                tr.appendChild(td);
+            }
+
+            table.appendChild(tr);
+        }
+
+        document.body.appendChild(table);
+
+    }, 'json');
+</script>
+</body>
+</html>
