@@ -1,67 +1,64 @@
 <html>
 <head>
+    <style>
+        table.exhibitorsTable th{
+            border: 1px solid black;
+        }
+        table.exhibitorsTable td{
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script>
-    // Get exhibitor ID 2
-    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor/2", function(data){
+    // Get all exhibitors
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor",
+            function(data){
 
-        var exHeadings = ['ID','User ID','External ID','Name','Email','Created At','Updated At','Description'];
-        var exData = ['id','user_id','external_id','name','email','created_at','updated_at','description'];
+                // Map the table headings to the data returned in our API call
+                var columnHeadings = ['ID','External ID','Name','Email','Booths'];
+                var columnData = ['id','external_id','name','email','boothsString'];
 
-        var exHtml = "";
+                // Create our exhibitors table
+                var table = document.createElement('table');
+                var heading_tr = document.createElement('tr');
 
-        // Add the exhibitor's logo
-        exHtml += "<img src=\"" + data.results[0].logo + "\"><br />";
+                table.className = "exhibitorsTable";
 
-        // Add the exhibitor's data
-        for(var i = 0; i < exHeadings.length; i++){
-            exHtml += "<b>" + exHeadings[i] + "</b>: ";
-            exHtml += data.results[0][exData[i]] + "<br />";
-        }
+                // Add the column headings
+                for(var i = 0; i < columnHeadings.length; i++){
+                    var th = document.createElement('th');
 
-        // Add the exhibitor's adornments
-        var adornmentsHtml = "<b>Adornments</b><br />";
+                    th.appendChild(document.createTextNode(columnHeadings[i]));
+                    heading_tr.appendChild(th);
+                }
+                table.appendChild(heading_tr);
 
-        for(var i=0; i < data.results[0].adornments.length; i++){
-            adornmentsHtml += data.results[0].adornments[i].id + " - " + data.results[0].adornments[i].name + "<br />";
-        }
+                // Iterate through the exhibitors
+                for(var i = 0; i < data.results.length; i++){
 
-        // Add the exhibitor's booths
-        var boothsHtml = "<b>Booths</b><br />";
+                    // Find the exhibitor's booths and append the booth numbers into a string
+                    data.results[i].boothsString = "";
+                    for(var x = 0; x < data.results[i].booths.length; x++){
+                        data.results[i].boothsString += data.results[i].booths[x].booth_number + " ";
+                    }
 
-        for(var i=0; i < data.results[0].booths.length; i++){
-            boothsHtml += data.results[0].booths[i].id + " - " + data.results[0].booths[i].booth_number + "<br />";
-        }
+                    // For each column in columnData, add a table row
+                    var tr = document.createElement('tr');
+                    for(var x = 0; x < columnData.length; x++){
+                        var td = document.createElement('td');
+                        td.appendChild(document.createTextNode(data.results[i][columnData[x]]));
+                        tr.appendChild(td);
+                    }
 
-        // Add the exhibitor's categories
-        var categoriesHtml = "<b>Categories</b><br />";
+                    table.appendChild(tr);
+                }
 
-        for(var i=0; i < data.results[0].categories.length; i++){
-            categoriesHtml += data.results[0].categories[i].id + " - " + data.results[0].categories[i].name + "<br />";
-        }
+                document.body.appendChild(table);
 
-        // Append everything to the DOM
-        var exhibitor = document.createElement('p');
-        exhibitor.innerHTML = exHtml;
-
-        var adornments = document.createElement('p');
-        adornments.innerHTML = adornmentsHtml;
-
-        var booths = document.createElement('p');
-        booths.innerHTML = boothsHtml;
-
-        var categories = document.createElement('p');
-        categories.innerHTML = categoriesHtml;
-
-        document.body.appendChild(exhibitor);
-        document.body.appendChild(adornments);
-        document.body.appendChild(booths);
-        document.body.appendChild(categories);
-
-    }, 'json');
+            }, 'json');
 </script>
 </body>
 </html>
