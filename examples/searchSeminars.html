@@ -1,0 +1,89 @@
+<html>
+<head>
+</head>
+<body>
+
+<form id="searchSeminars"></form>
+
+<p id="seminarResults"></p>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    function searchSeminars(){
+        var searchData = {};
+
+        // Get the search parameters
+        searchData.id = document.getElementById('id').value;
+        searchData.name = document.getElementById('name').value;
+        searchData.track = document.getElementById('track').value;
+
+        jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/seminar", searchData, function(data){
+
+            // Create a list of results based on our search parameters
+            var seminarsHtml = "";
+            for(var i = 0; i < data.results.length; i++){
+                seminarsHtml += data.results[i].id + " - " + data.results[i].name + " - " + data.results[i].track + "<br />";
+            }
+
+            var seminars = document.getElementById('seminarResults');
+            seminars.innerHTML = seminarsHtml;
+
+            document.body.appendChild(seminars);
+
+        }, 'json');
+    }
+
+    // Get all seminar parameters
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/seminar/parameters", function(data){
+
+        // Add a submit button to our form
+        var form = document.getElementById('searchSeminars');
+        var submit = document.createElement('input');
+        submit.setAttribute('value','Submit');
+        submit.setAttribute('type','button');
+        submit.setAttribute('onclick','searchSeminars();');
+
+        // Append these API text fields to the search form
+        var textFields = ['id','name'];
+
+        for(var i = 0; i < textFields.length; i++){
+            // Create the textbox container with a label
+            var div = document.createElement('div');
+            div.innerHTML = "<b>" + data.results[textFields[i]].label + "</b>: ";
+
+            // Create the textbox search fields
+            var textField = document.createElement('input');
+            textField.setAttribute('type','text');
+            textField.setAttribute('minlength',data.results[textFields[i]].min_length);
+            textField.setAttribute('maxlength',data.results[textFields[i]].max_length);
+            textField.setAttribute('id',textFields[i]);
+
+            div.appendChild(textField);
+            form.appendChild(div);
+        }
+
+        // Add a drop-down list for Tracks
+        var tracksDiv = document.createElement('div');
+        tracksDiv.innerHTML = "<b>" + data.results.track.label + "</b>: ";
+
+        var tracks = document.createElement('select');
+        tracks.setAttribute('id','track');
+        tracks.appendChild(document.createElement('option'));
+
+        for(var trackType in data.results.track.valid_values){
+            var trackOption = document.createElement('option');
+            trackOption.setAttribute('value',trackType);
+            trackOption.innerHTML = trackType;
+
+            tracks.appendChild(trackOption);
+        }
+
+        tracksDiv.appendChild(tracks);
+        form.appendChild(tracksDiv);
+
+        form.appendChild(submit);
+
+    }, 'json');
+</script>
+</body>
+</html>

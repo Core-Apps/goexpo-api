@@ -1,0 +1,67 @@
+<html>
+<head>
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    // Get exhibitor ID 2
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor/2", function(data){
+
+        var exHeadings = ['ID','User ID','External ID','Name','Email','Created At','Updated At','Description'];
+        var exData = ['id','user_id','external_id','name','email','created_at','updated_at','description'];
+
+        var exHtml = "";
+
+        // Add the exhibitor's logo
+        exHtml += "<img src=\"" + data.results[0].logo + "\"><br />";
+
+        // Add the exhibitor's data
+        for(var i = 0; i < exHeadings.length; i++){
+            exHtml += "<b>" + exHeadings[i] + "</b>: ";
+            exHtml += data.results[0][exData[i]] + "<br />";
+        }
+
+        // Add the exhibitor's adornments
+        var adornmentsHtml = "<b>Adornments</b><br />";
+
+        for(var i=0; i < data.results[0].adornments.length; i++){
+            adornmentsHtml += data.results[0].adornments[i].id + " - " + data.results[0].adornments[i].name + "<br />";
+        }
+
+        // Add the exhibitor's booths
+        var boothsHtml = "<b>Booths</b><br />";
+
+        for(var i=0; i < data.results[0].booths.length; i++){
+            boothsHtml += data.results[0].booths[i].id + " - " + data.results[0].booths[i].booth_number + "<br />";
+        }
+
+        // Add the exhibitor's categories
+        var categoriesHtml = "<b>Categories</b><br />";
+
+        for(var i=0; i < data.results[0].categories.length; i++){
+            categoriesHtml += data.results[0].categories[i].id + " - " + data.results[0].categories[i].name + "<br />";
+        }
+
+        // Append everything to the DOM
+        var exhibitor = document.createElement('p');
+        exhibitor.innerHTML = exHtml;
+
+        var adornments = document.createElement('p');
+        adornments.innerHTML = adornmentsHtml;
+
+        var booths = document.createElement('p');
+        booths.innerHTML = boothsHtml;
+
+        var categories = document.createElement('p');
+        categories.innerHTML = categoriesHtml;
+
+        document.body.appendChild(exhibitor);
+        document.body.appendChild(adornments);
+        document.body.appendChild(booths);
+        document.body.appendChild(categories);
+
+    }, 'json');
+</script>
+</body>
+</html>

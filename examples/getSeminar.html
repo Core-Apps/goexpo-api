@@ -1,0 +1,53 @@
+<html>
+<head>
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    // Get seminar ID 38
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/seminar/38", function(data){
+
+        var seminarHeadings = ['ID','Name','Type','Location','Track','Start Date','End Date','Description'];
+        var seminarData = ['id','name','type','location','track','start_date','end_date','description'];
+
+        var seminarHtml = "";
+
+        // Add the seminar's data
+        for(var i = 0; i < seminarHeadings.length; i++){
+            seminarHtml += "<b>" + seminarHeadings[i] + "</b>: ";
+            seminarHtml += data.results[0][seminarData[i]] + "<br />";
+        }
+
+        var speakersHtml = "<b>Speakers</b><br />";
+
+        // Add the seminar's speakers
+        for(var i = 0; i < data.results[0].speakers.length; i++){
+            speakersHtml += data.results[0].speakers[i].id + " - " + data.results[0].speakers[i].name + "<br />";
+        }
+
+        var uploadsHtml = "<b>Uploads</b><br />";
+
+        // Add the seminar's uploads
+        for(var i = 0; i < data.results[0].uploads.length; i++){
+            uploadsHtml += data.results[0].uploads[i].id + " - " + data.results[0].uploads[i].label + "<br />";
+        }
+
+        // Append everything to the DOM
+        var seminar = document.createElement('p');
+        seminar.innerHTML = seminarHtml;
+
+        var speakers = document.createElement('p');
+        speakers.innerHTML = speakersHtml;
+
+        var uploads = document.createElement('p');
+        uploads.innerHTML = uploadsHtml;
+
+        document.body.appendChild(seminar);
+        document.body.appendChild(speakers);
+        document.body.appendChild(uploads);
+
+    }, 'json');
+</script>
+</body>
+</html>

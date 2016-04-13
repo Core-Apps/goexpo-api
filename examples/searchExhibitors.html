@@ -1,0 +1,70 @@
+<html>
+<head>
+</head>
+<body>
+
+<form id="searchExhibitors"></form>
+
+<p id="exhibitorResults"></p>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    function searchExhibitors(){
+        var searchData = {};
+
+        // Get the search parameters
+        searchData.id = document.getElementById('id').value;
+        searchData.name = document.getElementById('name').value;
+        searchData.email = document.getElementById('email').value;
+
+        jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor", searchData, function(data){
+
+            // Create a list of results based on our search parameters
+            var exhibitorsHtml = "";
+            for(var i = 0; i < data.results.length; i++){
+                exhibitorsHtml += data.results[i].id + " - " + data.results[i].name + " - " + data.results[i].email + "<br />";
+            }
+
+            var exhibitors = document.getElementById('exhibitorResults');
+            exhibitors.innerHTML = exhibitorsHtml;
+
+            document.body.appendChild(exhibitors);
+
+        }, 'json');
+    }
+
+    // Get all exhibitor parameters
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor/parameters", function(data){
+
+        // Add a submit button to our form
+        var form = document.getElementById('searchExhibitors');
+        var submit = document.createElement('input');
+        submit.setAttribute('value','Submit');
+        submit.setAttribute('type','button');
+        submit.setAttribute('onclick','searchExhibitors();');
+
+        // Append these API text fields to the search form
+        var textFields = ['id','name','email'];
+
+        for(var i = 0; i < textFields.length; i++){
+            // Create the textbox container with a label
+            var div = document.createElement('div');
+            div.innerHTML = "<b>" + data.results[textFields[i]].label + "</b>: ";
+
+            // Create the textbox search fields
+            var textField = document.createElement('input');
+            textField.setAttribute('type','text');
+            textField.setAttribute('minlength',data.results[textFields[i]].min_length);
+            textField.setAttribute('maxlength',data.results[textFields[i]].max_length);
+            textField.setAttribute('id',textFields[i]);
+
+            div.appendChild(textField);
+            form.appendChild(div);
+        }
+
+        form.appendChild(submit);
+
+    }, 'json');
+</script>
+</body>
+</html>

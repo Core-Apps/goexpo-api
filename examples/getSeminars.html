@@ -1,0 +1,63 @@
+<html>
+<head>
+    <style>
+        table.seminarsTable th{
+            border: 1px solid black;
+        }
+        table.seminarsTable td{
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+    // Get all seminars
+    jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/seminar", function(data){
+
+        // Map the table headings to the data returned in our API call
+        var columnHeadings = ['ID','External ID','Name','Location','Speakers','Start Date','End Date','Description'];
+        var columnData = ['id','external_id','name','location','speakersString','start_date','end_date','description'];
+
+        // Create our seminars table
+        var table = document.createElement('table');
+        var heading_tr = document.createElement('tr');
+
+        table.className = "seminarsTable";
+
+        // Add the column headings
+        for(var i = 0; i < columnHeadings.length; i++){
+            var th = document.createElement('th');
+
+            th.appendChild(document.createTextNode(columnHeadings[i]));
+            heading_tr.appendChild(th);
+        }
+        table.appendChild(heading_tr);
+
+        // Iterate through the seminars
+        for(var i = 0; i < data.results.length; i++){
+
+            // Find all of the speakers for a seminar and convert them into a string
+            data.results[i].speakersString = "";
+            for(var x = 0; x < data.results[i].speakers.length; x++){
+                data.results[i].speakersString += data.results[i].speakers[x].name + "\n";
+            }
+
+            // For each column in columnData, add a table row
+            var tr = document.createElement('tr');
+            for(var x = 0; x < columnData.length; x++){
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(data.results[i][columnData[x]]));
+                tr.appendChild(td);
+            }
+
+            table.appendChild(tr);
+        }
+
+        document.body.appendChild(table);
+
+    }, 'json');
+</script>
+</body>
+</html>
