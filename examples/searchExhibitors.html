@@ -14,8 +14,10 @@
 
         // Get the search parameters
         searchData.id = document.getElementById('id').value;
-        searchData.name = document.getElementById('name').value;
         searchData.email = document.getElementById('email').value;
+        searchData.name = document.getElementById('companyKeyword').value;
+        searchData.keyword = document.getElementById('companyKeyword').value;
+        searchData.q_c_10116 = document.getElementById('companyKeyword').value;
 
         jQuery.get("https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/exhibitor", searchData, function(data){
 
@@ -44,7 +46,7 @@
         submit.setAttribute('onclick','searchExhibitors();');
 
         // Append these API text fields to the search form
-        var textFields = ['id','name','email'];
+        var textFields = ['id','email'];
 
         for(var i = 0; i < textFields.length; i++){
             // Create the textbox container with a label
@@ -61,6 +63,16 @@
             div.appendChild(textField);
             form.appendChild(div);
         }
+
+        var div = document.createElement('div');
+        div.innerHTML = "<b>Company Name/Keyword/Custom Field</b>: ";
+
+        var textField = document.createElement('input');
+        textField.setAttribute('type','text');
+        textField.setAttribute('id', 'companyKeyword');
+
+        div.appendChild(textField);
+        form.appendChild(div);
 
         form.appendChild(submit);
 
