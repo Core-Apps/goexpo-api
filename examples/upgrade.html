@@ -1,0 +1,162 @@
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+</head>
+<body>
+<script>
+
+	var username = 'TODO';
+	var password = 'TODO';
+
+	var url = 'https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1';
+
+	var session = null,
+		boothPackage = null,
+		onlinePackage = null;
+
+	var request = function (promiseFactory) {
+		return promiseFactory().then(function (response) {
+			if (response && response.error) {
+				throw new Error(response.error_name + ': ' + response.error_message);
+			} else {
+				return response;
+			}
+		});
+	};
+
+	var logIn = function () {
+		return request(function () {
+			return jQuery.post(url + 'session', {
+				username: username,
+				password: password
+			});
+		}).then(function (response) {
+			session = response.results[0];
+		});
+	};
+
+	var listUpgradePackages = function () {
+		return request(function () {
+			return jQuery.get(url + 'upgrade-package', {
+				token: session.token
+			});
+		}).then(function (packages) {
+			console.log('packages=', packages);
+		});
+	};
+
+	var createBoothUpgradePackage = function () {
+		return request(function () {
+			return jQuery.post(url + 'upgrade-package', {
+				token: session.token,
+				package_name: 'Booth Space - ' + (new Date()),
+				type: 'Booth',
+				charge_type: 'Standard',
+				description: 'Price per square foot',
+				price: '10',
+				status: 'Active',
+
+				restrictions: [{
+					related_upgrade_package_id: 10001, // System: Booth Area
+					rule_id: 2,
+					rule_value: 100
+				}],
+
+				installments: [{
+					expiration: '2017-01-01',
+					percent: 50
+				}, {
+					expiration: '2017-02-01',
+					percent: 50
+				}]
+			});
+		}).then(function (pkg) {
+			boothPackage = pkg;
+		});
+	};
+
+	var createOnlineUpgradePackage = function () {
+		return request(function () {
+			return jQuery.post(url + 'upgrade-package', {
+				token: session.token,
+				package_name: 'Gold Sponsorship - ' + (new Date()),
+				type: 'Online',
+				charge_type: 'Standard',
+				description: 'The Gold Sponsorship is the premiere sponsorship',
+				price: '1000',
+				status: 'Active',
+
+				items: [{
+					item_id: 2,
+					quantity: 1
+				}],
+
+				installments: [{
+					expiration: '2017-01-01',
+					percent: 50
+				}, {
+					expiration: '2017-02-01',
+					percent: 50
+				}],
+
+				step_ups: [{
+					from_upgrade_package_id: 8001,
+					is_unlimited: null,
+					price: null
+				}]
+			});
+		}).then(function (pkg) {
+			onlinePackage = pkg;
+		});
+	};
+
+	var getBoothUpgradePackage = function () {
+		var id = boothPackage.results[0].id;
+		return request(function () {
+			return jQuery.get(url + 'upgrade-package/' + id, {
+				token: session.token
+			});
+		}).then(function (pkg) {
+			console.log('package=', pkg);
+		});
+	};
+
+	var updateBoothUpgradePackage = function () {
+		var data = boothPackage.results[0];
+		data.token = session.token;
+		data.package_name = data.package_name + ' Modified';
+		return request(function () {
+			return jQuery.ajax({
+				url: url + 'upgrade-package/' + data.id,
+				type: 'PUT',
+				data: data
+			});
+		});
+	};
+
+	var logOut = function () {
+		return request(function () {
+			return jQuery.ajax({
+				url: url + 'session/' + session.token,
+				type: 'DELETE'
+			});
+		});
+	};
+
+	logIn().then(function (response) {
+		return listUpgradePackages();
+	}).then(function () {
+		return createBoothUpgradePackage();
+	}).then(function () {
+		return createOnlineUpgradePackage();
+	}).then(function () {
+		return getBoothUpgradePackage();
+	}).then(function () {
+		return updateBoothUpgradePackage();
+	}).then(function () {
+		return logOut();
+	});
+
+</script>
+</body>
+</html>
