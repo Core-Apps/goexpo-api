@@ -10,7 +10,7 @@
 
 	var url = 'https://n1a.goexposoftware.com/events/sbd/goExpo/api/public/v1/';
 
-	var session = null,
+	var apiToken = null,
 		boothPackage = null,
 		onlinePackage = null;
 
@@ -26,19 +26,19 @@
 
 	var logIn = function () {
 		return request(function () {
-			return jQuery.post(url + 'session', {
+			return jQuery.post(url + 'token', {
 				username: username,
 				password: password
 			});
 		}).then(function (response) {
-			session = response.results[0];
+			apiToken = response.results[0];
 		});
 	};
 
 	var listUpgradePackages = function () {
 		return request(function () {
 			return jQuery.get(url + 'upgrade-package', {
-				token: session.token
+				token: apiToken.token
 			});
 		}).then(function (packages) {
 			console.log('packages=', packages);
@@ -48,7 +48,7 @@
 	var createBoothUpgradePackage = function () {
 		return request(function () {
 			return jQuery.post(url + 'upgrade-package', {
-				token: session.token,
+				token: apiToken.token,
 				package_name: 'Booth Space - ' + (new Date()),
 				type: 'Booth',
 				charge_type: 'Standard',
@@ -78,7 +78,7 @@
 	var createOnlineUpgradePackage = function () {
 		return request(function () {
 			return jQuery.post(url + 'upgrade-package', {
-				token: session.token,
+				token: apiToken.token,
 				package_name: 'Gold Sponsorship - ' + (new Date()),
 				type: 'Online',
 				charge_type: 'Standard',
@@ -114,7 +114,7 @@
 		var id = boothPackage.results[0].id;
 		return request(function () {
 			return jQuery.get(url + 'upgrade-package/' + id, {
-				token: session.token
+				token: apiToken.token
 			});
 		}).then(function (pkg) {
 			console.log('package=', pkg);
@@ -123,7 +123,7 @@
 
 	var updateBoothUpgradePackage = function () {
 		var data = boothPackage.results[0];
-		data.token = session.token;
+		data.token = apiToken.token;
 		data.package_name = data.package_name + ' Modified';
 		return request(function () {
 			return jQuery.ajax({
@@ -137,7 +137,7 @@
 	var logOut = function () {
 		return request(function () {
 			return jQuery.ajax({
-				url: url + 'session/' + session.token,
+				url: url + 'token/' + apiToken.token,
 				type: 'DELETE'
 			});
 		});
